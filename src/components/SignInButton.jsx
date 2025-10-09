@@ -9,11 +9,13 @@ const SignInButton = ({spotifyToken}) => {
     const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'spotify',
     options: {
-      scopes: 'user-library-read user-top-read playlist-read-private user-read-private user-read-playback-state',
+      scopes: 'user-library-read user-top-read playlist-read-private user-read-private user-read-playback-state playlist-modify-public playlist-modify-private',
       redirectTo: `${window.location.origin}/Home`
     }
   }
 )
+
+console.log('OAuth redirect initiated:', data);
   if (error) throw error
   
     

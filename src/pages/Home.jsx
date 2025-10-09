@@ -2,9 +2,11 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 import supabase from "../supabaseClient";
 import LogOutButton from "../components/LogOutButton";
+import { useNavigate } from "react-router-dom";
 
-const Home = ({ spotifyToken, setSpotifyToken }) => {
-  const [pace, setPace] = useState("");
+const Home = ({ spotifyToken, setSpotifyToken, setSortedList, setTop10Artists }) => {
+  
+  const navigate = useNavigate()
 
   // Check if user is authenticated
   useEffect(() => {
@@ -28,7 +30,7 @@ const Home = ({ spotifyToken, setSpotifyToken }) => {
   }, []);
 
   // Fetch user's saved tracks from Spotify
-  async function getSongs() {
+  async function getTopArtists() {
     try {
       const response = await fetch(
         "https://api.spotify.com/v1/me/tracks?limit=50",
@@ -45,24 +47,33 @@ const Home = ({ spotifyToken, setSpotifyToken }) => {
         throw new Error(`HTTP error: ${response.status}`);
       }
       const data = await response.json();
-      
-      const trackIds = data.items.map((item => item.track.id))
 
-      const randomTrack = data.items[Math.floor(Math.random() * data.items.length)];
-      console.log(`${randomTrack.track.name} by ${randomTrack.track.artists.map(artist => artist.name)}`)
-      console.log(`this is the track's spotify external url${randomTrack.track.external_urls.spotify}`)
-      console.log("this is the track's id", randomTrack.track)
+      const artistCount = {};
+      const artistDetails = {};
       
-      window.location.href = randomTrack.track.external_urls.spotify;
-      
+      data.items.forEach((item) => {
+        item.track.artists.forEach(artist => {
+          artistCount[artist.name] = artistCount[artist.name] ? artistCount[artist.name] + 1 : 1; 
+
+          artistDetails[artist.name] = { id: artist.id, uri: artist.uri };
+        })
+        
+      })
+
+      const sortedList = Object.entries(artistCount)
+      .sort((a, b) => b[1] -a[1])
+      .map(array => ({name: array[0], count: array[1], id: artistDetails[array[0]].id, uri: artistDetails[array[0]].uri}));
+
+
+      setSortedList(sortedList);
+      setTop10Artists(sortedList.slice(0,10));
+
+      navigate('/game')
 
       if (!data.items) {
         console.log("No saved tracks found.");
       }
 
-      
-      
-      return trackIds;
     } catch (error) {
       console.log(error);
     }
@@ -70,69 +81,15 @@ const Home = ({ spotifyToken, setSpotifyToken }) => {
 
 
 
-
-
-
-  const presets = [
-    { label: "Chill", range: "60–90 BPM" },
-    { label: "Focus", range: "90–110 BPM" },
-    { label: "Workout", range: "120–150 BPM" },
-    { label: "Run", range: "160+ BPM" },
-  ];
-
-  const handleChange = (e) => {
-    setPace(e.target.value);
-  };
-
-  const handleSubmit = () => {
-    alert(`You picked: ${pace}`);
-    // 🔥 Here is where you’d call your Spotify API logic
-  };
-
-
-  
-
   return (
-    <div className="w-full h-screen bg-[#191414] flex justify-center items-center">
-      <LogOutButton/>
-      <div className="p-6 w-[300px] mx-auto bg-white shadow rounded-2xl">
-        <h2 className="text-xl font-bold mb-4">Pick Your Pace</h2>
-
-        <form className="space-y-3 ">
-          {presets.map((preset) => (
-            <label
-              key={preset.label}
-              className="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-100"
-            >
-              <input
-                type="radio"
-                name="pace"
-                value={preset.label}
-                checked={pace === preset.label}
-                onChange={handleChange}
-                className="mr-2"
-                style={{ accentColor: "#1DB954" }}
-              />
-              <span className="font-medium">{preset.label}</span>
-              <span className="ml-auto text-gray-500 text-sm">
-                {preset.range}
-              </span>
-            </label>
-          ))}
-        </form>
-
-        <button
-          onClick={handleSubmit}
-          disabled={!pace}
-          className="mt-4 w-full bg-[#1DB954] text-white py-2 px-4 rounded-lg disabled:opacity-50"
-        >
-          Continue
-        </button>
-
-        <button className="bg-green-400" onClick={getSongs}>
-          get list of songs
-        </button>
+    <div className="w-full h-screen bg-[#191414]">
+      <div className="py-3 flex justify-end"><LogOutButton/></div>
+      <div className="text-white flex flex-col items-center gap-5 mt-20 text-center px-3">
+        <h1>This is a game where you try to guess your top artist from all the songs you've liked on spotify</h1>
+        <button className="w-[90px] bg-[#1DB954] flex items-center justify-center gap-1 text-black p-2 rounded-xl cursor-pointer" onClick={getTopArtists}>Play</button>
       </div>
+      
+      
     </div>
   );
 };

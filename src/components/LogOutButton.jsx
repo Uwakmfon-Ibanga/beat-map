@@ -12,7 +12,7 @@ const LogOutButton = () => {
         }
     }
   return (
-    <button className='w-[160px] bg-[#1DB954] flex items-center gap-1 text-black p-2 rounded-xl cursor-pointer' onClick={logOut}>Log Out</button>
+    <button className='w-[80px] bg-[#1DB954] flex items-center justify-center gap-1 text-black p-2 rounded-xl cursor-pointer' onClick={logOut}>Log Out</button>
   )
 }
 
