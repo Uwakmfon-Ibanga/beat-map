@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { useState } from "react";
 import supabase from "../supabaseClient";
 import LogOutButton from "../components/LogOutButton";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +18,6 @@ const Home = ({ spotifyToken, setSpotifyToken, setSortedList, setTop10Artists })
         if (!session?.provider_token) {
           window.location.href = "/";
         } else {
-          console.log("User is signed in");
           setSpotifyToken(session.provider_token);
         }
       } catch (err) {
