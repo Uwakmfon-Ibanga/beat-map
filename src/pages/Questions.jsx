@@ -7,6 +7,7 @@ const Questions = ({ top10Artists, sortedList }) => {
     const [isCorrect, setIsCorrect] = useState(null);
     const [selectedOption, setSelectedOption] = useState(null);
     const [randomizedQuestions, setRandomizedQuestions] = useState([])
+    const [gameOver, setGameOver] = useState(false);
 
 
   const questionsAndAnswers = [
@@ -115,13 +116,18 @@ let question = randomizedQuestions[currentQuestion];
     setIsCorrect(null);
   setSelectedOption(null);
     } else {
-      alert(`Game over! Your final score is ${score} out of ${questionsAndAnswers.length}`);
-      // reset the game
-      setCurrentQuestion(0);
-      setScore(0);
       setIsCorrect(null);
       setSelectedOption(null);
-    }
+      setGameOver(true);
+      }
+  }
+  function handleGameRestart(){
+    setCurrentQuestion(0);
+    setScore(0);
+      setIsCorrect(null);
+      setSelectedOption(null);
+      setGameOver(false);
+      
   }
 
 
@@ -131,19 +137,21 @@ let question = randomizedQuestions[currentQuestion];
       <LogOutButton />
       <div className="flex items-center justify-center text-2xl">{score}</div>
       
-    { !selectedOption && question ? (
+      {/* show each question */}
+    { !gameOver && !selectedOption && question ? (
         // container for question and options
         <div className="w-[300px] m-auto flex flex-col gap-5">
             <div className="bg-[#1DB954] text-center rounded p-1">{question.question}</div>
             {/* container for the options */}
             <div className="grid grid-cols-1 justify-items-center gap-3">
                 {question.options.map((option, index) => (
-                    <div className="bg-[#1DB954] w-[150px] p-1 text-center rounded" key={index} onClick={handleOptionClick}>{option}</div>
+                    <div className="bg-[#1DB954] w-[150px] p-1 text-center rounded cursor-pointer" key={index} onClick={handleOptionClick}>{option}</div>
                 ))}
             </div>
         </div>
-    ) : null }
+    ) : null}
 
+{/* show wether the selected option is correct or false */}
     {selectedOption ? (
   <div className="w-[300px] m-auto flex flex-col items-center gap-5 text-center">
     <p className="text-center mt-2">
@@ -152,6 +160,14 @@ let question = randomizedQuestions[currentQuestion];
   <button className="bg-[#1DB954] w-[120px] p-1 rounded" onClick={handleNextQuestion}>Next Question</button>
   </div>
 ) : null}
+{  gameOver ? (
+      <div className="w-[300px] m-auto flex flex-col items-center gap-5 text-centerx">
+       <p> final score: {score} / {questionsAndAnswers.length}</p>
+       <button onClick={handleGameRestart} className="bg-[#1DB954] w-[150px] rounded">Play Again</button>
+      </div>
+    ):null}
+
+      
        
       </div>
   );
